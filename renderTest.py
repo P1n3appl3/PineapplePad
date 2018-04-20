@@ -37,7 +37,7 @@ class v3():
         return "<" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ">"
 
 
-size = v2(640, 512)
+size = v2(160, 128)
 #  size = v2(160, 128)
 angle = v2(math.radians(30), math.radians(20))
 
@@ -189,15 +189,16 @@ def drawQuad(p1, p2, p3, p4, color=WHITE):
 
 
 numCubes = 40
-cubeSize = 50
-speed = 25
+cubeSize = 12.5
+speed = 6
 cubes = []
 for i in range(numCubes):
-    cubes.append(cube(v3(random.random() * 2000 - 1000,
-                         80, i * 4000 / numCubes + random.random() * 200 - 50),
+    cubes.append(cube(v3(random.random() * 500 - 250,
+                         20, i * 2000 / numCubes + random.random() * 50 - 25),
                       cubeSize))
 
 vel = 0
+score = 0
 while running:
     screen.fill(BLACK)
     keys = pygame.key.get_pressed()
@@ -211,28 +212,29 @@ while running:
     if(keys[pygame.K_a]):
         if vel < 0:
             vel = 0
-        vel = min(speed, (vel + 2) * 2)
+        vel = min(speed, (vel + .5) * 1.25)
     if(keys[pygame.K_d]):
         if vel > 0:
             vel = 0
-        vel = max(-speed, (vel - 2) * 2)
+        vel = max(-speed, (vel - .5) * 1.25)
     if not (keys[pygame.K_d] or keys[pygame.K_a]):
-        vel /= 2
-        if vel < 1:
+        vel /= 1.25
+        if vel < .1:
             vel = 0
 
     for c in cubes:
         c.pos.x += vel
         c.pos.z -= speed
-        if c.pos.z < -400:
-            c.pos.x = random.random() * 2000 - 1000
-            c.pos.z = 2000
-        elif c.pos.z < -400 + cubeSize and c.pos.x < 0 and c.pos.x + c.size > 0:
-            raw_input("you lose, input your name for the high score list: ")
+        if c.pos.z < -100:
+            score += 1
+            c.pos.x = random.random() * 500 - 250
+            c.pos.z = 500
+        elif c.pos.z < -100 + cubeSize and c.pos.x < 0 and c.pos.x + c.size > 0:
+            print "You Lose. Score:", score
             running = False
         c.renderWireframe()
 
-    pygame.draw.polygon(screen, WHITE, [[300, 500], [320, 480], [340, 500]])
+    pygame.draw.polygon(screen, WHITE, [[75, 125], [80, 120], [85, 125]])
 
     pygame.transform.flip(screen, False, False)
     pygame.display.flip()
