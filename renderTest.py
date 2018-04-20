@@ -3,9 +3,7 @@ import math
 import time
 import random
 
-print "yo"
-
-fps = 30
+fps = 20
 clk = pygame.time.Clock()
 BLACK = (0,   0,   0)
 WHITE = (255, 255, 255)
@@ -53,12 +51,12 @@ def drawPixel(p, color=WHITE):
     screen.set_at((int(p.x), int(p.y)), color)
 
 
-class vertex():
+class edge():
     def __init__(self, p1, p2):
         self.p1 = p1
         self.p2 = p2
 
-    def draw(self, color=WHITE):
+    def draw(self, color=GREEN):
         pygame.draw.line(
             screen, color, (int(
                 self.p1.x), int(
@@ -118,66 +116,68 @@ class cube():
 
     def renderWireframe(self):
         self.computePoints()
-        topLeft = vertex(
+        topLeft = edge(
             self.p010.project(
                 size, angle), self.p011.project(
                 size, angle))
-        topRight = vertex(
+        topRight = edge(
             self.p110.project(
                 size, angle), self.p111.project(
                 size, angle))
-        bottomLeft = vertex(
+        bottomLeft = edge(
             self.p000.project(
                 size, angle), self.p001.project(
                 size, angle))
-        bottomRight = vertex(
+        bottomRight = edge(
             self.p100.project(
                 size, angle), self.p101.project(
                 size, angle))
-        topFront = vertex(
+        topFront = edge(
             self.p010.project(
                 size, angle), self.p110.project(
                 size, angle))
-        topBack = vertex(
+        topBack = edge(
             self.p011.project(
                 size, angle), self.p111.project(
                 size, angle))
-        bottomFront = vertex(
+        bottomFront = edge(
             self.p000.project(
                 size, angle), self.p100.project(
                 size, angle))
-        bottomBack = vertex(
+        bottomBack = edge(
             self.p001.project(
                 size, angle), self.p101.project(
                 size, angle))
-        frontLeft = vertex(
+        frontLeft = edge(
             self.p000.project(
                 size, angle), self.p010.project(
                 size, angle))
-        frontRight = vertex(
+        frontRight = edge(
             self.p100.project(
                 size, angle), self.p110.project(
                 size, angle))
-        backLeft = vertex(
+        backLeft = edge(
             self.p001.project(
                 size, angle), self.p011.project(
                 size, angle))
-        backRight = vertex(
+        backRight = edge(
             self.p101.project(
                 size, angle), self.p111.project(
                 size, angle))
-        topLeft.draw()
-        topRight.draw()
-        bottomLeft.draw()
-        bottomRight.draw()
         topFront.draw()
-        topBack.draw()
+        #  topBack.draw()
         bottomFront.draw()
         bottomBack.draw()
+        bottomRight.draw()
+        bottomLeft.draw()
         frontLeft.draw()
         frontRight.draw()
-        backLeft.draw()
-        backRight.draw()
+        if self.pos.x > 0:
+            backLeft.draw()
+            topLeft.draw()
+        if self.pos.x + self.size < 0:
+            backRight.draw()
+            topRight.draw()
 
 
 def drawTri(p1, p2, p3, color=WHITE):
@@ -188,14 +188,16 @@ def drawQuad(p1, p2, p3, p4, color=WHITE):
     pass
 
 
-numCubes = 20
+numCubes = 40
 cubeSize = 50
-speed = 5
+speed = 25
 cubes = []
 for i in range(numCubes):
-    cubes.append(cube(v3(random.random() * 800 - 400,
-                         100, i * 1000 / numCubes), cubeSize))
+    cubes.append(cube(v3(random.random() * 2000 - 1000,
+                         80, i * 4000 / numCubes + random.random() * 200 - 50),
+                      cubeSize))
 
+vel = 0
 while running:
     screen.fill(BLACK)
     keys = pygame.key.get_pressed()
@@ -207,26 +209,30 @@ while running:
         running = False
 
     if(keys[pygame.K_a]):
-        for c in cubes:
-            c.pos.x += speed
-
+        if vel < 0:
+            vel = 0
+        vel = min(speed, (vel + 2) * 2)
     if(keys[pygame.K_d]):
-        for c in cubes:
-            c.pos.x -= speed
-
-    if(keys[pygame.K_s]):
-        for c in cubes:
-            c.pos.y -= speed
-
-    if(keys[pygame.K_w]):
-        for c in cubes:
-            c.pos.y += speed
+        if vel > 0:
+            vel = 0
+        vel = max(-speed, (vel - 2) * 2)
+    if not (keys[pygame.K_d] or keys[pygame.K_a]):
+        vel /= 2
+        if vel < 1:
+            vel = 0
 
     for c in cubes:
+        c.pos.x += vel
         c.pos.z -= speed
-        if c.pos.z < -30:
-            c.pos.z = 1000
+        if c.pos.z < -400:
+            c.pos.x = random.random() * 2000 - 1000
+            c.pos.z = 2000
+        elif c.pos.z < -400 + cubeSize and c.pos.x < 0 and c.pos.x + c.size > 0:
+            raw_input("you lose, input your name for the high score list: ")
+            running = False
         c.renderWireframe()
+
+    pygame.draw.polygon(screen, WHITE, [[300, 500], [320, 480], [340, 500]])
 
     pygame.transform.flip(screen, False, False)
     pygame.display.flip()
