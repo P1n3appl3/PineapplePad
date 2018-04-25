@@ -1,4 +1,4 @@
-## Software
+## Software todo
 
 - HAL
     - [] SPI to LCD
@@ -18,15 +18,18 @@
     - [] Double buffer management
     - [] Filesystem reading
 
-## Hardware
+## Hardware todo
 
-- [] PCB with double 2x10 male headers connects to screen. 1x6 header to DAC/AMP, 1x8 to accelerometer
+- [] PCB with double 2x10 male headers connects to screen. 1x8 to DAC/AMP, 1x8 to accelerometer, pads for buttons
 - [] PCB for DAC and AMP with leads to speaker, slide pot for volume, switch for 3.5mm
 - [] 3d print housing for battery + speaker + 2 pcb's with screws to mount them
+
+### Pinout:
+
+- DAC: B0-B5
 
 ## Resources
 
 - [author's explanation](https://web.archive.org/web/20060615142050/http://www.flecko.net:80/cubefield.html)
 - [3d projection wikipedia](https://en.wikipedia.org/wiki/3D_projection)
 - [3d projection tutorial](https://www.scratchapixel.com/lessons/3d-basic-rendering/computing-pixel-coordinates-of-3d-point/mathematics-computing-2d-coordinates-of-3d-points)
-
