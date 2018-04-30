@@ -38,7 +38,6 @@ class v3():
 
 
 size = v2(160, 128)
-#  size = v2(160, 128)
 angle = v2(math.radians(30), math.radians(20))
 
 pygame.init()
