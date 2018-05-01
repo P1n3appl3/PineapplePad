@@ -16,19 +16,19 @@
 	- B3: DAC
 	- B4: DAC
 	- B5: DAC
-    - B6: 
-    - B7: 
+    - B6: Shorted with D0
+    - B7: Shorted with D1
 - Port C
 	- C4: U1Rx on PC4 interrupt
 	- C5: U1Tx on PC5 busy wait
 	- C6: 
 	- C7: 
 - Port D
-	- D0: 
-	- D1: 
+	- D0: Shorted with B6
+	- D1: Shorted with B7
 	- D2: ADC in (A5)
 	- D3: 
-	- D6:
+	- D6: 
 	- D7: SDC_CS
 - Port E
 	- E0:

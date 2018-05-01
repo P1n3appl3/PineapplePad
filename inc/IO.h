@@ -1,24 +1,16 @@
 #ifndef IO_H
 #define IO_H
-#include <stdint.h>
-//------------IO_Init------------
-// Initialize GPIO Port for a switch and an LED
-// Input: none
-// Output: none
+
+bool arcade1;
+bool arcade2;
+
 void IO_Init(void);
 
-//------------IO_HeartBeat------------
-// Toggle the output state of the  LED.
-// Input: none
-// Output: none
-void IO_HeartBeat(void);
+void PortF_Init(void);
 
+void toggle_red(void);
+void toggle_green(void);
+void toggle_blue(void);
 
-//------------IO_Touch------------
-// wait for release and touch of the switch
-// Delay to debounce the switch
-// Input: none
-// Output: none
-void IO_Touch(void);
 
 #endif
