@@ -59,25 +59,13 @@
 #include "../inc/Timer0.h"
 #include "../inc/Timer1.h"
 #include "../inc/Sound.h"
+#include "../inc/IO.h"
 
 #define PF0  (*((volatile uint32_t*)0x40025004))  // right BTN
 #define PF1  (*((volatile uint32_t*)0x40025008))  // red LED
 #define PF2  (*((volatile uint32_t*)0x40025010))  // blue LED
 #define PF3  (*((volatile uint32_t*)0x40025020))  // green LED
 #define PF4  (*((volatile uint32_t*)0x40025040))  // left BTN
-
-void PortF_Init(void) {
-    SYSCTL_RCGCGPIO_R |= 0x20;
-    while ((SYSCTL_PRGPIO_R & 0x20) != 0x20) ;
-    GPIO_PORTF_LOCK_R = 0x4C4F434B;
-    GPIO_PORTF_CR_R = 0x1F;
-    GPIO_PORTF_AMSEL_R = 0x00;
-    GPIO_PORTF_PCTL_R = 0x00000000;
-    GPIO_PORTF_DIR_R = 0x0E;
-    GPIO_PORTF_AFSEL_R = 0x00;
-    GPIO_PORTF_PUR_R = 0x11;
-    GPIO_PORTF_DEN_R = 0x1F;
-}
 
 SlidePot pot(1500, 0);
 
@@ -98,7 +86,7 @@ void clock(void){
 int main(void){
     PLL_Init(Bus80MHz);     // Bus clock is 80 MHz
     Random_Init(1);
-    //Output_Init();
+    IO_Init();
     Sound_Init();
     PortF_Init();
     Timer0_Init(&noise, 160000); // 500 Hz
