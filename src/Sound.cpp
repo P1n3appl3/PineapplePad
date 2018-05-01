@@ -35,14 +35,15 @@ void Sound_Init(void){
     DAC_Init();
 }
 
-#define AUDIO_FREQ (80 * 1000 * 1000 / 11000) // 11 khz
+#define AUDIO_FREQ (80 * 1000 * 1000 / 8000) // 8 khz
 void Sound_Play(const uint8_t* pt, uint32_t count){
     sample = 0;
     currentBuf = (uint8_t*)pt; // casting away const
     limit = count;
     NVIC_ST_RELOAD_R = AUDIO_FREQ;
+    NVIC_ST_CTRL_R |= 0x02;
 }
 
 void Sound_Stop(){
-    NVIC_ST_RELOAD_R = 0;
+    NVIC_ST_CTRL_R &= ~0x02;
 }
