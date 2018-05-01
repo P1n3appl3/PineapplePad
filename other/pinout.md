@@ -1,0 +1,45 @@
+## Pinout
+
+- Port A
+	- A0: U0Rx (VCP receive)
+	- A1: U0Tx (VCP transmit)
+	- A2: Sclk SPI clock from microcontroller to TFT or SDC
+	- A3: TFT_CS, active low to enable TFT
+	- A4: MISO SPI data from SDC to microcontroller
+	- A5: MOSI SPI data from microcontroller to TFT or SDC
+	- A6: TFT data/command
+	- A7: TFT reset
+- Port B
+	- B0: DAC
+	- B1: DAC
+	- B2: DAC
+	- B3: DAC
+	- B4: DAC
+	- B5: DAC
+    - B6: 
+    - B7: 
+- Port C
+	- C4: U1Rx on PC4 interrupt
+	- C5: U1Tx on PC5 busy wait
+	- C6: 
+	- C7: 
+- Port D
+	- D0: 
+	- D1: 
+	- D2: ADC in (A5)
+	- D3: 
+	- D6:
+	- D7: SDC_CS
+- Port E
+	- E0:
+	- E1:
+	- E2:
+	- E3:
+	- E4:
+	- E5:
+- Port F
+	- F0: Onboard Button 2
+	- F1: RED_LED
+	- F2: BLUE_LED
+	- F3: GREEN_LED
+	- F4: Onboard Button 1
