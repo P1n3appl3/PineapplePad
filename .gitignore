@@ -2,10 +2,11 @@
 !src
 !inc
 !other
-!*.md
-!*.py
+other/*.wav
+!**.md
+!**.py
 !LICENSE
-!*.c
-!*.cpp
-!*.h
-!*.s
+!**.c
+!**.cpp
+!**.h
+!**.s

@@ -2,25 +2,29 @@ import sys
 import os
 
 if len(sys.argv) < 2:
-    print "convert.py takes a list of audio files and youtube video ID's as arguments"
+    print "This script takes a file with a list of audio files and youtube video ID's, as well as titles, see exampleSounds.txt"
     sys.exit()
 
-songNum = 0
-for song in sys.argv[1:]:
-    inputFile = song
-    outputFile = "output" + str(songNum)
-    if '.' not in song:
-        os.system("youtube-dl " + song +
-                  " -o \"yt-temp.%(ext)s\" -x --audio-format wav")
+f = open(sys.argv[1])
+for line in f:
+    if line == '':
+        continue
+    song = line.split(':')
+    inputFile = song[0].strip()
+    outputFile = song[1].strip()
+    if '.' not in inputFile:
+        os.system("youtube-dl " + inputFile +
+                  " -q -o \"yt-temp.%(ext)s\" -x --audio-format wav")
         inputFile = "yt-temp.wav"
-    print "Converting to raw low quality audio... ",
+    print "Converting", outputFile, "to raw low quality audio... ",
     os.system(
         "sox " +
         inputFile +
-        " -r 8000 -b 8 -c 1 -e unsigned-integer badq_" +
+        " -r 8000 -b 8 -c 1 -e unsigned-integer " +
         outputFile +
         ".wav vol $(sox " +
         inputFile +
         " -n stat -v 2>&1)")
     print "Finished"
-    songNum += 1
+
+os.system("rm yt-temp.wav")

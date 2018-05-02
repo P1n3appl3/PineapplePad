@@ -1,32 +1,28 @@
 ## Software todo
 
 - HAL
-    - [] SPI to LCD
-    - [] SPI from SD card
+    - [x] SPI to LCD
+    - [x] SPI from SD card
     - [] SPI from accelerometer
-    - [] ADC from slide
+    - [x] ADC from slide
     - [] Button GPIO interrupts
 - Game
     - [] Menu logic
-    - [] Game logic
+    - [x] Game logic
     - [] Highscore logic
 - Render
     - [] Draw menu
-    - [] Draw frame
-    - [] Draw highscore
+    - [x] Draw frame
+    - [] Draw score
 - Sound
-    - [] Double buffer management
-    - [] Filesystem reading
+    - [x] Filesystem reading
+    - [] File loading management
 
 ## Hardware todo
 
 - [] PCB with double 2x10 male headers connects to screen. 1x8 to DAC/AMP, 1x8 to accelerometer, pads for buttons
 - [] PCB for DAC and AMP with leads to speaker, slide pot for volume, switch for 3.5mm
 - [] 3d print housing for battery + speaker + 2 pcb's with screws to mount them
-
-### Pinout:
-
-- DAC: B0-B5
 
 ## Resources
 
