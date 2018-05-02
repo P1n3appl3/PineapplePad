@@ -108,10 +108,9 @@ void drawLine(Vec2 a, Vec2 b, int color) {
 }
 
 void drawGround(int width, int depth){
-    static int widthOffset = 0;
-    static int depthOffset = 0;
-    // Vec3 tempClose(groundX);
-    // Vec3 tempFar();
+    Vec3 close(width, -50, 0);
+    Vec3 far(width, -50, 1000);
+    drawLine(close.project(), far.project(), ~bgColor);
 }
 
 // use the HSV spectrum to generate high saturation colors only

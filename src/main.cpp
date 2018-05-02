@@ -12,6 +12,7 @@
 #include "../inc/graphics.h"
 #include "../inc/game.h"
 #include "../inc/IO.h"
+#include "../inc/Images.h"
 
 extern "C" void DisableInterrupts(void);
 extern "C" void EnableInterrupts(void);
@@ -38,10 +39,12 @@ int main(void){
     // SD_Mount();
     // Sound_Play();
 
-    Timer1_Init(clk, 3333333); // 24 FPS
     EnableInterrupts();
 
-    // display title screen and wait for press
+    ST7735_DrawBitmap(0, 159, retro, 128, 160);
+    while((!(GPIO_PORTF_DATA_R & 0x10)) - (!(GPIO_PORTF_DATA_R & 0x01)) == 0);
+    ST7735_FillScreen(0);
+    Timer1_Init(clk, 3333333); // 24 FPS
     Random_Init(NVIC_ST_CURRENT_R);
 
     while (1) {

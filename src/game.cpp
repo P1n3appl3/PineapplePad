@@ -21,6 +21,8 @@ int bgColor = BLACK;
 int cubeColor = GREEN;
 int playerColor = WHITE;
 bool redraw = false;
+int widthOffset = 0;
+int depthOffset = 0;
 
 void initField(){
     for (int i = 0; i < NUM_CUBES; ++i) {
@@ -56,13 +58,16 @@ void step(){
             // collision detection
             else if (cubes[i].pos.x < 0 && cubes[i].pos.x + cubes[i].size > 0) {
                 cubes[i].draw();
-                //todo: display endgame graphic and play endgame sound
+                //todo: display endgame graphic
                 Effect_Play(dead, sizeof(dead));
                 while (true) ;
             }
         }
         cubes[i].draw();
     }
+    // widthOffset += vel * (1 + difficulty / 2);
+    // depthOffset -= difficulty;
+    // drawGround(widthOffset, depthOffset);
     drawPlayer();
 }
 
