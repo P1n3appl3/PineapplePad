@@ -1,9 +1,3 @@
-// Sound.cpp
-// Runs on any computer
-// Sound assets based off the original Space Invaders
-// Import these constants into your SpaceInvaders.c for sounds!
-// Jonathan Valvano
-// April 19, 2018
 #include <stdint.h>
 #include "../inc/tm4c123gh6pm.h"
 #include "../inc/Sound.h"
@@ -16,8 +10,8 @@ uint32_t limit;
 uint8_t* currentBuf;
 
 void SysTick_Handler(void){
-    DAC_Out(currentBuf[sample++]>>2);
-    if(sample == limit){
+    DAC_Out(currentBuf[sample++] >> 2);
+    if (sample == limit) {
         Sound_Stop();
     }
 }

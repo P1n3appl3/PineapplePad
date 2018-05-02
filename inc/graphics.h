@@ -58,4 +58,6 @@ void drawLine(Vec2 a, Vec2 b, int color = WHITE);
 
 void drawPlayer();
 
+int randomColor();
+
 #endif

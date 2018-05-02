@@ -1,6 +1,7 @@
 #include "../inc/graphics.h"
 #include "../inc/ST7735.h"
 #include "../inc/game.h"
+#include "../inc/random.h"
 
 Vec2 Vec3::project() {
     return Vec2(
@@ -71,6 +72,7 @@ void drawLine(Vec2 a, Vec2 b, int color) {
         ST7735_DrawFastHLine(x0, y0, x1 - x0 + 1, color);
     } else {
         // Bresenham's algorithm for speedy line drawing
+        // todo: to use fast lines for near infinite/zero slopes
         int16_t steep = abs(y1 - y0) > abs(x1 - x0);
         if (steep) {
             swap(x0, y0);
@@ -103,4 +105,30 @@ void drawLine(Vec2 a, Vec2 b, int color) {
             }
         }
     }
+}
+
+// use the HSV spectrum to generate high saturation colors only
+int randomColor(){
+    int randColor = Random();
+    switch (Random32() % 6) {
+    case 0:
+        return ST7735_Color565(0, 255, randColor);
+        break;
+    case 1:
+        return ST7735_Color565(255, 0, randColor);
+        break;
+    case 2:
+        return ST7735_Color565(0, randColor, 255);
+        break;
+    case 3:
+        return ST7735_Color565(255, randColor, 0);
+        break;
+    case 4:
+        return ST7735_Color565(randColor, 0, 255);
+        break;
+    case 5:
+        return ST7735_Color565(randColor, 255, 0);
+        break;
+    }
+    return 0;
 }

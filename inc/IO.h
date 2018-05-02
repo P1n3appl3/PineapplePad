@@ -1,8 +1,8 @@
 #ifndef IO_H
 #define IO_H
 
-bool button1;
-bool button2;
+extern bool button1;
+extern bool button2;
 
 void IO_Init(void);
 

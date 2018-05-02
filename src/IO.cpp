@@ -3,12 +3,23 @@
 #include <stdint.h>
 
 #define NVIC_EN0_INT4 0x10
-#define debounce 80000 // 1ms
+#define DEBOUNCE 80000 // 1ms
 
+bool button1;
+bool button2;
 int time1;
 int time2;
 
-void IO_Init(void){
+void (*b1_rising)(void);
+void (*b1_falling)(void);
+void (*b2_rising)(void);
+void (*b2_falling)(void);
+
+void IO_Init(void(*b1_rising_task)(void), void(*b1_falling_task)(void), void(*b2_rising_task)(void), void(*b2_falling_task)(void)){
+    b1_rising = b1_rising_task;
+    b1_falling = b1_falling_task;
+    b2_rising = b2_rising_task;
+    b2_falling = b2_falling_task;
     SYSCTL_RCGCGPIO_R |= 0x10;          //activate PortE clock
     while ((SYSCTL_PRGPIO_R & 0x10) != 0x10) ; //wait for clock
     GPIO_PORTE_DIR_R &= ~0x03;          //set E0, E1 output
@@ -30,18 +41,28 @@ void IO_Init(void){
 
 void GPIOE_Handler(void){
     int current_time = NVIC_ST_CURRENT_R;
-    if (current_time > time1 && (current_time - time2 > debounce)) {
+    if (current_time > time1 && (current_time - time2 > DEBOUNCE)) {
         if (GPIO_PORTE_RIS_R & 0x01) {
-            button1 = !button1;
+            if(GPIO_PORTE_DATA_R & 0x01){
+                (*b1_rising)();
+            }
+            else{
+                (*b1_falling)();
+            }
             time1 = NVIC_ST_CURRENT_R;
             GPIO_PORTE_ICR_R = 0x01;
         }
     }
-    if (current_time > time2 && (current_time - time2 > debounce)) {
+    if (current_time > time2 && (current_time - time2 > DEBOUNCE)) {
         if (GPIO_PORTE_RIS_R & 0x02) {
-            button1 = !button1;
-            time2 = NVIC_ST_CURRENT_R;
-            GPIO_PORTE_ICR_R = 0x02;
+            if(GPIO_PORTE_DATA_R & 0x02){
+               (*b2_rising)();
+           }
+           else{
+               (*b2_falling)();
+           }
+           time2 = NVIC_ST_CURRENT_R;
+           GPIO_PORTE_ICR_R = 0x02;
         }
     }
 }

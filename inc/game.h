@@ -17,6 +17,6 @@ void initField();
 
 void step();
 
-void shuffleColor();
+void shuffleColor(int x = -1);
 
 #endif
