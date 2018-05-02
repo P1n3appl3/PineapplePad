@@ -422,5 +422,4 @@ void Output_On(void);
 // Output: none
 void Output_Color(uint32_t newColor);
 
-
 #endif

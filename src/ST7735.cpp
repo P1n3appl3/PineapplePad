@@ -108,8 +108,12 @@
 
 //#include <stdio.h>
 #include <stdint.h>
+//#include <stdio.h>
 #include "../inc/ST7735.h"
 #include "../inc/tm4c123gh6pm.h"
+
+#define SDC_CS_PB0 0
+#define SDC_CS_PD7 1
 
 // 16 rows (0 to 15) and 21 characters (0 to 20)
 // Requires (11 + size*size*6*8) bytes of transmission for each character
@@ -166,6 +170,49 @@ uint16_t StTextColor = ST7735_YELLOW;
 #define TFT_CS                  (*((volatile uint32_t *)0x40004020))
 #define TFT_CS_LOW              0           // CS normally controlled by hardware
 #define TFT_CS_HIGH             0x08
+
+#if SDC_CS_PD7
+// PD7 output used for SDC CS
+#define SDC_CS           (*((volatile uint32_t *)0x40007200))
+#define SDC_CS_LOW       0           // CS controlled by software
+#define SDC_CS_HIGH      0x80
+void SDC_CS_Init(void){
+  SYSCTL_RCGCGPIO_R |= 0x08;            // activate clock for Port D
+  while((SYSCTL_PRGPIO_R&0x08) == 0){}; // allow time for clock to stabilize
+  GPIO_PORTD_LOCK_R = 0x4C4F434B;       // unlock GPIO Port D
+  GPIO_PORTD_CR_R = 0xFF;               // allow changes to PD7-0
+  // only PD7 needs to be unlocked, other bits can't be locked
+  GPIO_PORTD_DIR_R |= 0x80;             // make PD7 out
+  GPIO_PORTD_AFSEL_R &= ~0x80;          // disable alt funct on PD7
+  GPIO_PORTD_DR4R_R |= 0x80;            // 4mA drive on outputs
+  GPIO_PORTD_PUR_R |= 0x80;             // enable weak pullup on PD7
+  GPIO_PORTD_DEN_R |= 0x80;             // enable digital I/O on PD7
+                                        // configure PD7 as GPIO
+  GPIO_PORTD_PCTL_R = (GPIO_PORTD_PCTL_R&0x0FFFFFFF)+0x00000000;
+  GPIO_PORTD_AMSEL_R &= ~0x80;          // disable analog functionality on PD7
+  SDC_CS = SDC_CS_HIGH;
+}
+#endif
+// PB0 output used for SDC CS
+#if SDC_CS_PB0
+#define SDC_CS           (*((volatile uint32_t *)0x40005004))
+#define SDC_CS_LOW       0           // CS controlled by software
+#define SDC_CS_HIGH      0x01
+void SDC_CS_Init(void){
+  SYSCTL_RCGCGPIO_R |= 0x02;            // activate clock for Port B
+  while((SYSCTL_PRGPIO_R&0x02) == 0){}; // allow time for clock to stabilize
+  GPIO_PORTB_DIR_R |= 0x01;             // make PB0 out
+  GPIO_PORTB_AFSEL_R &= ~0x01;          // disable alt funct on PB0
+  GPIO_PORTB_DR4R_R |= 0x01;            // 4mA drive on outputs
+  GPIO_PORTB_PUR_R |= 0x01;             // enable weak pullup on PB0
+  GPIO_PORTB_DEN_R |= 0x01;             // enable digital I/O on PB0
+                                        // configure PB0 as GPIO
+  GPIO_PORTB_PCTL_R = (GPIO_PORTB_PCTL_R&0xFFFFFFF0)+0x00000000;
+  GPIO_PORTB_AMSEL_R &= ~0x01;          // disable analog functionality on PB0
+  SDC_CS = SDC_CS_HIGH;
+}
+#endif
+
 #define DC                      (*((volatile uint32_t *)0x40004100))
 #define DC_COMMAND              0
 #define DC_DATA                 0x40
@@ -511,36 +558,46 @@ static int16_t _height = ST7735_TFTHEIGHT;
 
 // The Data/Command pin must be valid when the eighth bit is
 // sent.  The SSI module has hardware input and output FIFOs
-// that are 8 locations deep.  Based on the observation that
-// the LCD interface tends to send a few commands and then a
-// lot of data, the FIFOs are not used when writing
-// commands, and they are used when writing data.  This
-// ensures that the Data/Command pin status matches the byte
-// that is actually being transmitted.
-// The write command operation waits until all data has been
-// sent, configures the Data/Command pin for commands, sends
-// the command, and then waits for the transmission to
-// finish.
-// The write data operation waits until there is room in the
-// transmit FIFO, configures the Data/Command pin for data,
-// and then adds the data to the transmit FIFO.
+// that are 8 locations deep; however, they are not used in
+// this implementation.  Each function first stalls while
+// waiting for any pending SSI0 transfers to complete.  Once
+// the SSI0 module is idle, it then prepares the Chip Select
+// pins for the SD card and LCD and the Data/Command pin.
+// Next it starts transmitting the data or command.  Finally
+// once the hardware is idle again, it sets all chip select
+// pins high as required by the serial protocol.  This is a
+// significant change from previous implementations of this
+// function.  It is less efficient without the FIFOs, but it
+// should ensure that the Chip Select and Data/Command pin
+// statuses all match the byte that is actually being
+// transmitted.
 // NOTE: These functions will crash or stall indefinitely if
 // the SSI0 module is not initialized and enabled.
-void static writecommand(uint8_t c) {
+void static writecommand(unsigned char c) {
+  volatile uint32_t response;
                                         // wait until SSI0 not busy/transmit FIFO empty
   while((SSI0_SR_R&SSI_SR_BSY)==SSI_SR_BSY){};
+  SDC_CS = SDC_CS_HIGH;
   TFT_CS = TFT_CS_LOW;
   DC = DC_COMMAND;
   SSI0_DR_R = c;                        // data out
-                                        // wait until SSI0 not busy/transmit FIFO empty
-  while((SSI0_SR_R&SSI_SR_BSY)==SSI_SR_BSY){};
+  while((SSI0_SR_R&SSI_SR_RNE)==0){};   // wait until response
+  TFT_CS = TFT_CS_HIGH;
+  response = SSI0_DR_R;                 // acknowledge response
 }
 
 
-void static writedata(uint8_t c) {
-  while((SSI0_SR_R&SSI_SR_TNF)==0){};   // wait until transmit FIFO not full
+void static writedata(unsigned char c) {
+  volatile uint32_t response;
+                                        // wait until SSI0 not busy/transmit FIFO empty
+  while((SSI0_SR_R&SSI_SR_BSY)==SSI_SR_BSY){};
+  SDC_CS = SDC_CS_HIGH;
+  TFT_CS = TFT_CS_LOW;
   DC = DC_DATA;
   SSI0_DR_R = c;                        // data out
+  while((SSI0_SR_R&SSI_SR_RNE)==0){};   // wait until response
+  TFT_CS = TFT_CS_HIGH;
+  response = SSI0_DR_R;                 // acknowledge response
 }
 
 void static deselect(void) {
@@ -730,15 +787,18 @@ void static commandList(const uint8_t *addr) {
 
 // Initialization code common to both 'B' and 'R' type displays
 void static commonInit(const uint8_t *cmdList) {
-  volatile uint32_t delay;
   ColStart  = RowStart = 0; // May be overridden in init func
-
-  SYSCTL_RCGCSSI_R |= 0x01;  // activate SSI0
-  SYSCTL_RCGCGPIO_R |= 0x01; // activate port A
-  while((SYSCTL_PRGPIO_R&0x01)==0){}; // allow time for clock to start
+                                        // activate clock for Port A
+  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0;
+                                        // allow time for clock to stabilize
+  while((SYSCTL_PRGPIO_R&SYSCTL_PRGPIO_R0) == 0){};
+                                        // activate clock for SSI0
+  SYSCTL_RCGCSSI_R |= SYSCTL_RCGCSSI_R0;
+                                        // allow time for clock to stabilize
+  while((SYSCTL_PRSSI_R&SYSCTL_PRSSI_R0) == 0){};
 
   // toggle RST low to reset; CS low so it'll listen to us
-  // SSI0Fss is temporarily used as GPIO
+  // SSI0Fss is used as GPIO
   GPIO_PORTA_DIR_R |= 0xC8;             // make PA3,6,7 out
   GPIO_PORTA_AFSEL_R &= ~0xC8;          // disable alt funct on PA3,6,7
   GPIO_PORTA_DEN_R |= 0xC8;             // enable digital I/O on PA3,6,7
@@ -754,21 +814,22 @@ void static commonInit(const uint8_t *cmdList) {
   Delay1ms(500);
 
   // initialize SSI0
-  GPIO_PORTA_AFSEL_R |= 0x2C;           // enable alt funct on PA2,3,5
-  GPIO_PORTA_DEN_R |= 0x2C;             // enable digital I/O on PA2,3,5
-                                        // configure PA2,3,5 as SSI
-  GPIO_PORTA_PCTL_R = (GPIO_PORTA_PCTL_R&0xFF0F00FF)+0x00202200;
-  GPIO_PORTA_AMSEL_R &= ~0x2C;          // disable analog functionality on PA2,3,5
+  GPIO_PORTA_AFSEL_R |= 0x34;           // enable alt funct on PA2,4,5
+  GPIO_PORTA_PUR_R |= 0x3C;             // enable weak pullup on PA2,3,4,5
+  GPIO_PORTA_DEN_R |= 0x34;             // enable digital I/O on PA2,4,5
+                                        // configure PA2,4,5 as SSI
+  GPIO_PORTA_PCTL_R = (GPIO_PORTA_PCTL_R&0xFF00F0FF)+0x00220200;
+  GPIO_PORTA_AMSEL_R &= ~0x34;          // disable analog functionality on PA2,4,5
+  SDC_CS_Init();                        // SDC CS on PB0 or PD7
+  SDC_CS = SDC_CS_HIGH;
   SSI0_CR1_R &= ~SSI_CR1_SSE;           // disable SSI
   SSI0_CR1_R &= ~SSI_CR1_MS;            // master mode
-                                        // configure for system clock/PLL baud clock source
-  SSI0_CC_R = (SSI0_CC_R&~SSI_CC_CS_M)+SSI_CC_CS_SYSPLL;
-//                                        // clock divider for 3.125 MHz SSIClk (50 MHz PIOSC/16)
-//  SSI0_CPSR_R = (SSI0_CPSR_R&~SSI_CPSR_CPSDVSR_M)+16;
-                                        // clock divider for 8 MHz SSIClk (80 MHz PLL/24)
-                                        // SysClk/(CPSDVSR*(1+SCR))
-                                        // 80/(10*(1+0)) = 8 MHz (slower than 4 MHz)
-  SSI0_CPSR_R = (SSI0_CPSR_R&~SSI_CPSR_CPSDVSR_M)+10; // must be even number
+                                        // configure for clock from source PIOSC for baud clock source
+  SSI0_CC_R = (SSI0_CC_R&~SSI_CC_CS_M)+SSI_CC_CS_PIOSC;
+                                        // clock divider for 8 MHz SSIClk (16 MHz PIOSC/2)
+                                        // PIOSC/(CPSDVSR*(1+SCR))
+                                        // 16/(2*(1+0)) = 8 MHz
+  SSI0_CPSR_R = (SSI0_CPSR_R&~SSI_CPSR_CPSDVSR_M)+2; // must be even number
   SSI0_CR0_R &= ~(SSI_CR0_SCR_M |       // SCR = 0 (8 Mbps data rate)
                   SSI_CR0_SPH |         // SPH = 0
                   SSI_CR0_SPO);         // SPO = 0
@@ -1669,23 +1730,6 @@ void ST7735_OutString(char *ptr){
 void ST7735_SetTextColor(uint16_t color){
   StTextColor = color;
 }
-
-//// Print a character to ST7735 LCD.
-//int fputc(int ch, FILE *f){
-//  ST7735_OutChar(ch);
-//  return 1;
-//}
-//// No input from Nokia, always return data.
-//int fgetc (FILE *f){
-//  return 0;
-//}
-//// Function called when file error occurs.
-//int ferror(FILE *f){
-//  /* Your implementation of ferror */
-//  return EOF;
-//}
-// Abstraction of general output device
-// Volume 2 section 3.4.5
 
 // *************** Output_Init ********************
 // Standard device driver initialization function for printf
