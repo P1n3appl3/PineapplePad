@@ -73,7 +73,7 @@ void Sound_Test(){
 }
 
 void SysTick_Handler(void){
-    //toggle_blue();
+    toggle_blue();
     if(sample == tail){
         return;
     }
@@ -103,7 +103,7 @@ void SysTick_Init() {
     NVIC_ST_CTRL_R = 0;
     NVIC_ST_CURRENT_R = 0;
     NVIC_ST_RELOAD_R = 0;
-    NVIC_SYS_PRI3_R = (NVIC_SYS_PRI3_R & 0x00FFFFFF) | 0x40000000; // priority 2
+    NVIC_SYS_PRI3_R = (NVIC_SYS_PRI3_R & NVIC_SYS_PRI3_TICK_M) | 0x00000000; // priority 0
     NVIC_ST_CTRL_R = 0x07;
 }
 
@@ -136,6 +136,9 @@ void open_song(){
     if(Fresult){
         error((char*)"error opening song");
     }
+    else{
+        //error((char*)"opened song");
+    }
 }
 
 void Sound_Play(){
@@ -143,7 +146,6 @@ void Sound_Play(){
     Sound_Load();
     currentBuf = buf;
     NVIC_ST_RELOAD_R = 0xFFFF;
-    NVIC_ST_CTRL_R |= 0x02;
 }
 
 void close_file(){
@@ -172,6 +174,9 @@ void Sound_Load(){
         limit = BUFFER - 1;
     }
     tail += samples_loaded;
+    if(!(NVIC_ST_CTRL_R & 0x02)){
+        NVIC_ST_CTRL_R |= 0x02;
+    }
 }
 
 void SD_Mount(){

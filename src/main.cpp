@@ -24,7 +24,9 @@ int main(void){
     Random_Init(NVIC_ST_CURRENT_R);
     UART_Init();            // debugging
     SD_Mount();
+    EnableInterrupts();
     Sound_Play();
+    DisableInterrupts();
     Delay1ms(1);
     initField();            // Set up cubes
     Delay1ms(1);
