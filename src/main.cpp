@@ -27,11 +27,11 @@ void clk(){
     frameDone = true;
 }
 
-int main1(void){
+int main(void){
     PLL_Init(Bus80MHz);
     ST7735_InitR(INITR_REDTAB);
     UART_Init();    // debugging
-    //ADC_Init();
+    ADC_Init();
     initField();    // set up cubes
     PortF_Init();
     Sound_Init();
@@ -49,7 +49,7 @@ int main1(void){
 
     while (1) {
         frameDone = false;
-        //difficulty = 1 + (ADC_In() >> 9); // slide pot input
+        difficulty = 2 + (ADC_In() >> 9); // slide pot input
         vel = (!(GPIO_PORTF_DATA_R & 0x10)) // todo: replace with hardware interrupts
               - (!(GPIO_PORTF_DATA_R & 0x01));
         step();
@@ -67,7 +67,7 @@ int mainSFX(){
     while (1) ;
 }
 
-int main(){
+int main3(){
     PLL_Init(Bus80MHz);
     ST7735_InitR(INITR_REDTAB);
     Sound_Init();
