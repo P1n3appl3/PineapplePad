@@ -6,7 +6,6 @@
 
 extern int vel;
 extern int difficulty;
-extern volatile bool frameDone;
 extern Cube cubes[];
 
 extern int bgColor;

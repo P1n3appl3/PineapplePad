@@ -4,11 +4,11 @@ if len(sys.argv) == 1:
     print "give me a file"
     sys.exit()
 
-outFile = open("sound.h", 'w')
-outFile.write("#include <stdint>\n")
+outFile = open("sfx.h", 'w')
+outFile.write("#include <stdint.h>\n")
 
 for i in sys.argv[1:]:
-    outFile.write("const uint8_t testSound[4000] = {\n")
+    outFile.write("const uint8_t " + i.split('.')[0] + "[] = {\n")
     inFile = open(i)
 
     limit = 20000

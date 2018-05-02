@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "../inc/SlidePot.h"
+#include "../inc/ADC.h"
 #include "../inc/tm4c123gh6pm.h"
 
 // ADC initialization function
@@ -36,38 +36,4 @@ uint32_t ADC_In(void) {
     uint32_t temp = ADC0_SSFIFO3_R & 0x0FFF; // Get result
     ADC0_ISC_R |= 0x08;             // Ack
     return temp;
-}
-
-// constructor, invoked on creation of class
-// m and b are linear calibration coeffients
-SlidePot::SlidePot(uint32_t m, uint32_t b) {
-        slope = m;
-        offset = b;
-}
-
-void SlidePot::Save(uint32_t n) {
-        data = n;
-        distance = Convert(n);
-        flag = true;
-}
-//todo: replace these with real values measured from part D
-#define NUMERATOR 58
-#define DENOMINATOR 125
-#define YINT 2024
-uint32_t SlidePot::Convert(uint32_t n) {
-    // use calibration data to convert ADC sample to distance
-    return YINT - (n * NUMERATOR/DENOMINATOR);
-}
-
-void SlidePot::Sync(void) {
-        while(!flag);
-        flag = 0;
-}
-
-uint32_t SlidePot::ADCsample(void) { // return ADC sample value (0 to 4095)
-    return data;
-}
-
-uint32_t SlidePot::Distance(void) { // return distance value (0 to 2000), 0.001cm
-    return distance;
 }

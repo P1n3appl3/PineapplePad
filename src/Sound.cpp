@@ -12,7 +12,7 @@
 
 #define BUFFER 10000
 #define SONGS 1
-#define LOAD_SAMPLES 1
+#define LOAD_SAMPLES 1000
 
 extern "C" void SysTick_Handler(void);
 
@@ -49,7 +49,7 @@ void Sound_Test(){
     }
     //toggle_blue();
     //DAC_Out(currentBuf[sample++] >> 2);
-    
+
     UART_OutString((char*)"\n\rtail: ");
     UART_OutUDec(tail);
     UART_OutString((char*)"\n\rlimit: ");
@@ -58,7 +58,7 @@ void Sound_Test(){
     UART_OutUDec(sample);
     UART_OutChar(' ');
     UART_OutUDec(currentBuf[sample++]);
-    
+
     //if(currentBuf[sample++] > 0){
       //  toggle_blue();
     //}
@@ -73,30 +73,13 @@ void Sound_Test(){
 }
 
 void SysTick_Handler(void){
-    toggle_blue();
-    if(sample == tail){
+    //toggle_blue();
+    if(sample == tail && !paused){
+        toggle_green();
         return;
     }
-    //DAC_Out(currentBuf[sample++] >> 2);
-    /*
-    UART_OutString((char*)"\n\rtail: ");
-    UART_OutUDec(tail);
-    UART_OutString((char*)"\n\rlimit: ");
-    UART_OutUDec(limit);
-    UART_OutString((char*)"\n\rsample: ");
-    UART_OutUDec(sample);
-    */
-   // UART_OutChar('\n');
-    //UART_OutChar('\r');
-    //UART_OutUDec(currentBuf[sample++]);
-    if (sample == limit) {
-        if(paused){
-            Sound_Unpause();
-        }
-        else{
-            sample = 0;
-        }
-    }
+    DAC_Out(currentBuf[sample++]);
+    sample %= sizeof(currentBuf);
 }
 
 void SysTick_Init() {
@@ -109,7 +92,7 @@ void SysTick_Init() {
 
 void Sound_Init(void){
     SysTick_Init();
-    //DAC_Init();
+    DAC_Init();
 }
 
 #define AUDIO_FREQ (80 * 1000 * 1000 / 8000) // 8 khz
@@ -145,7 +128,7 @@ void Sound_Play(){
     open_song();
     Sound_Load();
     currentBuf = buf;
-    NVIC_ST_RELOAD_R = 0xFFFF;
+    NVIC_ST_RELOAD_R = AUDIO_FREQ;
 }
 
 void close_file(){

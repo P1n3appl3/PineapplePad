@@ -107,28 +107,29 @@ void drawLine(Vec2 a, Vec2 b, int color) {
     }
 }
 
+void drawGround(int width, int depth){
+    static int widthOffset = 0;
+    static int depthOffset = 0;
+    // Vec3 tempClose(groundX);
+    // Vec3 tempFar();
+}
+
 // use the HSV spectrum to generate high saturation colors only
 int randomColor(){
     int randColor = Random();
     switch (Random32() % 6) {
     case 0:
         return ST7735_Color565(0, 255, randColor);
-        break;
     case 1:
         return ST7735_Color565(255, 0, randColor);
-        break;
     case 2:
         return ST7735_Color565(0, randColor, 255);
-        break;
     case 3:
         return ST7735_Color565(255, randColor, 0);
-        break;
     case 4:
         return ST7735_Color565(randColor, 0, 255);
-        break;
     case 5:
         return ST7735_Color565(randColor, 255, 0);
-        break;
     }
     return 0;
 }

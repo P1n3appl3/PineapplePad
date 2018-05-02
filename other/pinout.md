@@ -10,12 +10,12 @@
 	- A6: TFT data/command
 	- A7: TFT reset
 - Port B
-	- B0: DAC
-	- B1: DAC
-	- B2: DAC
-	- B3: DAC
-	- B4: DAC
-	- B5: DAC
+	- B0:
+	- B1:
+	- B2:
+	- B3:
+	- B4:
+	- B5:
     - B6: Shorted with D0
     - B7: Shorted with D1
 - Port C
@@ -36,7 +36,7 @@
 	- E2:
 	- E3:
 	- E4:
-	- E5:
+	- E5: Audio Out
 - Port F
 	- F0: Onboard Button 2
 	- F1: RED_LED

@@ -3,6 +3,8 @@
 #include "../inc/tm4c123gh6pm.h"
 #include "../inc/ST7735.h"
 #include "../inc/graphics.h"
+#include "../inc/sound.h"
+#include "../inc/sfx.h"
 
 #define CUBE_SIZE 15
 #define SPREAD 500
@@ -12,7 +14,6 @@
 int vel = 0;
 int difficulty = 1;
 int score = 0;
-volatile bool frameDone;
 
 Cube cubes[NUM_CUBES];
 
@@ -45,8 +46,9 @@ void step(){
             if (cubes[i].pos.z < -20 - CUBE_SIZE) { // moved behind player
                 cubes[i].pos.z = DIST;
                 cubes[i].pos.x = Random32() % SPREAD - SPREAD / 2;
-                if ((score + difficulty) >> 5 > score >> 5) {
+                if ((score + difficulty) >> 8 > score >> 8) {
                     // next level
+                    Effect_Play(beep, sizeof(beep));
                     shuffleColor();
                 }
                 score += difficulty;
@@ -55,12 +57,12 @@ void step(){
             else if (cubes[i].pos.x < 0 && cubes[i].pos.x + cubes[i].size > 0) {
                 cubes[i].draw();
                 //todo: display endgame graphic and play endgame sound
+                Effect_Play(dead, sizeof(dead));
                 while (true) ;
             }
         }
         cubes[i].draw();
     }
-    frameDone = true;
     drawPlayer();
 }
 
@@ -74,7 +76,7 @@ static const int palettes[][2] = {
     { BLACK, 1337 },
     { WHITE, 1337 },
     { GREEN, BLACK }
-};
+}; // todo: fix backwards colors
 
 void shuffleColor(int x){
     static int palette = 0;
