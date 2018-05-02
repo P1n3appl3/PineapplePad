@@ -29,3 +29,9 @@
 - [author's explanation](https://web.archive.org/web/20060615142050/http://www.flecko.net:80/cubefield.html)
 - [3d projection wikipedia](https://en.wikipedia.org/wiki/3D_projection)
 - [3d projection tutorial](https://www.scratchapixel.com/lessons/3d-basic-rendering/computing-pixel-coordinates-of-3d-point/mathematics-computing-2d-coordinates-of-3d-points)
+
+## Priority
+- IO: 5
+- DiskIO/Timer5: 2
+- Audio/Systick: 0
+- Graphics/Timer1: 8

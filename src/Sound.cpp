@@ -10,7 +10,7 @@
 #include "../inc/UART.h"
 #include "../inc/IO.h"
 
-#define BUFFER 10000
+#define BUFFER 20000
 #define SONGS 1
 #define LOAD_SAMPLES 1000
 
@@ -78,8 +78,15 @@ void SysTick_Handler(void){
         toggle_green();
         return;
     }
-    DAC_Out(currentBuf[sample++]);
-    sample %= sizeof(currentBuf);
+    DAC_Out(currentBuf[sample++] >> 2);
+    if (sample == limit) {
+        if(paused){
+            Sound_Unpause();
+        }
+        else{
+            sample = 0;
+        }
+    }
 }
 
 void SysTick_Init() {
@@ -149,6 +156,7 @@ void Sound_Load(){
         return;
     }
     Fresult = f_read(&Handle, &buf[tail], LOAD_SAMPLES, &samples_loaded);
+    /*
     if(samples_loaded < LOAD_SAMPLES){
         close_file();
         open_song();
@@ -156,6 +164,7 @@ void Sound_Load(){
         tail = 0;
         limit = BUFFER - 1;
     }
+    */
     tail += samples_loaded;
     if(!(NVIC_ST_CTRL_R & 0x02)){
         NVIC_ST_CTRL_R |= 0x02;
