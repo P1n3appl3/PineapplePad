@@ -50,13 +50,6 @@ extern "C" void EndCritical(long sr);    // restore I bit to previous value
 extern "C" void WaitForInterrupt(void);  // low power mode
 extern "C" void EnableInterrupts(void);
 
-#define starter 0
-// 1 means UART0, TX/RX interrupts, simple FIFO
-// 0 means your Lab 9
-#if starter
-// EE319K - do not use these two FIFOs
-// Two-index implementation of the transmit FIFO
-// can hold 0 to TXFIFOSIZE elements
 #define NVIC_EN0_INT5    0x00000020  // Interrupt 5 enable
 extern "C" void UART0_Handler(void);
 #define TXFIFOSIZE 32 // must be a power of 2
@@ -248,84 +241,6 @@ void UART0_Handler(void) {
     }
     PF1 ^= 0x02;
 }
-
-// ************Lab 9 TO DO**********
-
-#else
-extern "C" void UART1_Handler(void);
-#define NVIC_EN0_INT6   0x00000040  // Interrupt 6 enable
-Queue RxFifo; // static implementation of class
-int RxCounter;
-// Initialize UART0
-// Baud rate is 115200 bits/sec
-// Lab 9
-void UART_Init(void) {
-    SYSCTL_RCGCUART_R |= 0x00000002;   // activate UART1
-    SYSCTL_RCGCGPIO_R |= 0x00000004;   // activate port C
-    while ((SYSCTL_PRGPIO_R & 0x04) == 0) {
-    }
-    ;
-    UART1_CTL_R &= ~UART_CTL_UARTEN;     // disable UART
-    UART1_IBRD_R = 43;          // IBRD = int(80,000,000/(16*115,200)) = int(43.40278)
-    UART1_FBRD_R = 26;              // FBRD = round(0.40278 * 64) = 26
-    // 8 bit, no parity bits, one stop, FIFOs
-    UART1_LCRH_R = (UART_LCRH_WLEN_8 | UART_LCRH_FEN);
-
-    // configure interrupt for TX FIFO <= 1/2 full
-    // configure interrupt for RX FIFO >= 1/2 full
-    UART1_IFLS_R += (UART_IFLS_TX4_8 | UART_IFLS_RX4_8);
-    // enable TX and RX FIFO interrupts and RX time-out interrupt
-    UART1_IM_R |= UART_IM_RXIM;
-
-    UART1_CTL_R |= 0x0301;              // enable UART
-    GPIO_PORTC_AFSEL_R |= 0x30;     // enable alt funct on PC5-4
-    GPIO_PORTC_DEN_R |= 0x30;       // enable digital I/O on PC5-4
-    // configure PC5-4 as UART1
-    GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 0xFF00FFFF) + 0x00220000;
-    GPIO_PORTC_AMSEL_R &= ~0x30;    // disable analog on PC5-4
-    // UART0=priority 2
-    NVIC_PRI1_R = (NVIC_PRI1_R & NVIC_PRI1_INT6_M) | 0x00400000; // bits 13-15
-    NVIC_EN0_R = NVIC_EN0_INT6;           // enable interrupt 6 in NVIC
-    RxCounter = 0;
-}
-
-// input ASCII character from UART
-// spin if RxFifo is empty
-// Lab 9
-char UART_InChar(void) {
-    while (UART_InStatus()) ;
-    return UART1_DR_R & 0xff;
-}
-
-// Lab 9
-bool UART_InStatus(void) {
-    return UART1_FR_R & UART_FR_RXFE;
-}
-
-// output ASCII character to UART
-// busy-wait spin if hardware not ready
-// Lab 9
-// in Lab 9 this will never wait
-void UART_OutChar(char data) {
-    while (UART1_FR_R & UART_FR_TXFF) ;
-    UART1_DR_R = data;
-}
-
-// one thing has happened:
-// hardware RX FIFO goes from 7 to 8 items
-// Lab 9
-void UART1_Handler(void) {
-    PF1 ^= 0x02;  // triple toggle debugging
-    PF1 ^= 0x02;
-    while (!UART_InStatus()) {
-        RxFifo.Put(UART1_DR_R & 0xFF);
-    }
-    RxCounter++;
-    UART1_ICR_R = 0x10;
-    PF1 ^= 0x02;
-}
-
-#endif
 
 //------------UART_OutString------------
 // Output String (NULL termination)

@@ -684,8 +684,10 @@ void Timer5_Init(void){
   NVIC_EN2_R = 0x10000000;         // 9) enable interrupt 92 in NVIC
   TIMER5_CTL_R = 0x00000001;       // 10) enable timer5A
 }
+
+extern "C" void TIMER5A_Handler(void); 
 // Executed every 1 ms
-void Timer5A_Handler(void){
+void TIMER5A_Handler(void){
   TIMER5_ICR_R = 0x00000001;       // acknowledge timer5A timeout
   disk_timerproc();
 }

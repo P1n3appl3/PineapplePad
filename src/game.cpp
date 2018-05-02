@@ -7,9 +7,11 @@
 #define CUBE_SIZE 15
 #define SPREAD 500
 #define DIST 300
+#define GRACE_PERIOD 500
 
 int vel = 0;
 int difficulty = 1;
+int score = 0;
 volatile bool frameDone;
 
 Cube cubes[NUM_CUBES];
@@ -22,7 +24,7 @@ bool redraw = false;
 void initField(){
     for (int i = 0; i < NUM_CUBES; ++i) {
         cubes[i] = Cube(Vec3(Random32() % SPREAD - SPREAD / 2,
-                             -50, 100 + (DIST / NUM_CUBES) * i), CUBE_SIZE);
+                             -50, GRACE_PERIOD + (DIST / NUM_CUBES) * i), CUBE_SIZE);
     }
     shuffleColor();
 }
@@ -40,9 +42,14 @@ void step(){
         cubes[i].pos.z -= difficulty;
         cubes[i].pos.x += vel * (1 + difficulty / 2); // todo: shift and fixed point
         if (cubes[i].pos.z < -10) {
-            if (cubes[i].pos.z < -20 -CUBE_SIZE) { // moved behind player
+            if (cubes[i].pos.z < -20 - CUBE_SIZE) { // moved behind player
                 cubes[i].pos.z = DIST;
                 cubes[i].pos.x = Random32() % SPREAD - SPREAD / 2;
+                if ((score + difficulty) >> 5 > score >> 5) {
+                    // next level
+                    shuffleColor();
+                }
+                score += difficulty;
             }
             // collision detection
             else if (cubes[i].pos.x < 0 && cubes[i].pos.x + cubes[i].size > 0) {
@@ -66,7 +73,7 @@ static const int palettes[][2] = {
     { WHITE, BLUE },
     { BLACK, 1337 },
     { WHITE, 1337 },
-    { GREY, 1337 }
+    { GREEN, BLACK }
 };
 
 void shuffleColor(int x){

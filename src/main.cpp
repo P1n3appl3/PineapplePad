@@ -17,7 +17,7 @@ extern "C" void EnableInterrupts(void);
 
 int main(void){
     PLL_Init(Bus80MHz);     // Bus clock is 80 MHz
-    Sound_Init();           // Start up systick for music
+    //Sound_Init();           // Start up systick for music
     ST7735_InitR(INITR_REDTAB);
     UART_Init();            // debugging
     initField();            // Set up cubes
@@ -31,10 +31,11 @@ int main(void){
 
     while (1) {
         frameDone = false;
-        difficulty = 1 + (ADC_In() >> 9);
-        // chill until new calculations... maybe load some audio?
-        while (!frameDone) ;
-        vel = (!(GPIO_PORTF_DATA_R & 0x10))
+        difficulty = 1 + (ADC_In() >> 9); // slide pot input
+        while (!frameDone){
+            // load audio here
+        }
+        vel = (!(GPIO_PORTF_DATA_R & 0x10)) // replace with hardware interrupts
               - (!(GPIO_PORTF_DATA_R & 0x01));
         if (!(GPIO_PORTF_DATA_R & 0x11)) {
             shuffleColor();
