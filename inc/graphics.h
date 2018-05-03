@@ -60,6 +60,8 @@ void drawPlayer();
 
 void drawGround(int width, int depth);
 
+void printScore(int x);
+
 int randomColor();
 
 #endif

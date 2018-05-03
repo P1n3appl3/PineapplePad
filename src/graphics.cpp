@@ -2,6 +2,7 @@
 #include "../inc/ST7735.h"
 #include "../inc/game.h"
 #include "../inc/random.h"
+#include "../inc/Images.h"
 
 Vec2 Vec3::project() {
     return Vec2(
@@ -13,6 +14,7 @@ Vec2 Vec3::project() {
 }
 
 void Cube::draw() {
+    //extrapolate points from origin
     Vec2 p000 = pos.project();
     Vec2 p001 = Vec3(pos.x, pos.y, pos.z + size).project();
     Vec2 p010 = Vec3(pos.x, pos.y + size, pos.z).project();
@@ -33,7 +35,7 @@ void Cube::draw() {
     if (SELF_OCCLUDE && pos.x > 0) {
         drawLine(p000, p001, color); //left bottom
         drawLine(p001, p011, color); //left back
-    }else if (pos.x + size < 0) {
+    }else if (SELF_OCCLUDE && pos.x + size < 0) {
         drawLine(p101, p111, color); //right back
         drawLine(p100, p101, color); //right bottom
     }
@@ -104,6 +106,21 @@ void drawLine(Vec2 a, Vec2 b, int color) {
                 err += dx;
             }
         }
+    }
+}
+
+static char lastScore[5] = { 10, 10, 10, 10, 10};
+const uint16_t* numbers[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
+void printScore(int x){
+    int screenX = 2 * SCREEN_HEIGHT / 3;
+    int screenY = SCREEN_WIDTH;
+    for (int i = 0; i < 5; ++i) {
+        int temp = x % 10;
+        if (temp != lastScore[i]) {
+            ST7735_DrawBitmap(screenX, screenY, numbers[temp], 30, 30);
+        }
+        x /= 10;
+        screenY -= 32;
     }
 }
 

@@ -20,9 +20,8 @@ extern "C" void EnableInterrupts(void);
 volatile bool frameDone;
 
 void clk(){
-    if (frameDone) { // too high fps
-        //toggle_green();
-        //while (1) ;
+    if (frameDone) { // fps too high
+        //toggle_red();
     }
     frameDone = true;
 }
@@ -32,28 +31,29 @@ int main(void){
     ST7735_InitR(INITR_REDTAB);
     UART_Init();    // debugging
     ADC_Init();
-    initField();    // set up cubes
     PortF_Init();
     Sound_Init();
 
-    SD_Mount();
+    //SD_Mount(); // breaking at the moment
     EnableInterrupts();
-    Sound_Play();
 
+    Sound_Play();
     ST7735_DrawBitmap(0, 159, retro, 128, 160);
-    while((!(GPIO_PORTF_DATA_R & 0x10)) - (!(GPIO_PORTF_DATA_R & 0x01)) == 0){
+    while ((GPIO_PORTF_DATA_R & 0x10) && (GPIO_PORTF_DATA_R & 0x01)) {
         Sound_Load();
     }
     Sound_Stop();
     Effect_Play(start, sizeof(start));
     //Sound_Stop();
     ST7735_FillScreen(0);
-    Timer1_Init(clk, 3333333); // 24 FPS
+    printScore(0);
+    initField();    // set up cubes
+    Timer1_Init(clk, 2666666); // 30 FPS
     Random_Init(NVIC_ST_CURRENT_R);
 
     while (1) {
         frameDone = false;
-        difficulty = 5 + (ADC_In() >> 9); // slide pot input
+        difficulty = 1 + (ADC_In() >> 9); // slide pot input
         vel = (!(GPIO_PORTF_DATA_R & 0x10)) // todo: replace with hardware interrupts
               - (!(GPIO_PORTF_DATA_R & 0x01));
         step();
@@ -63,7 +63,7 @@ int main(void){
     }
 }
 
-int main_SFX(){
+int mainSFX(){
     PLL_Init(Bus80MHz);
     PortF_Init();
     Sound_Init();
@@ -71,28 +71,16 @@ int main_SFX(){
     while (1) ;
 }
 
-int main_Audio(){
+int mainMusic(){
     PLL_Init(Bus80MHz);
     ST7735_InitR(INITR_REDTAB);
     Sound_Init();
     UART_Init();
     PortF_Init();
     EnableInterrupts();
-    Random_Init(NVIC_ST_CURRENT_R);
     SD_Mount();
-
-    //Sound_Load();
-
     Sound_Play();
     while (1) {
         Sound_Load();
     }
-}
-
-int main_sdtest(void){
-    PLL_Init(Bus80MHz);
-    ST7735_InitR(INITR_REDTAB);
-    EnableInterrupts();
-    sd_test();
-    while (1) ;
 }

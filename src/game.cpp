@@ -13,6 +13,7 @@
 
 int vel = 0;
 int difficulty = 1;
+int speed = 1;
 int score = 0;
 
 Cube cubes[NUM_CUBES];
@@ -42,27 +43,25 @@ void step(){
         cubes[i].color = bgColor;
         cubes[i].draw();
         cubes[i].color = tempColor;
-        cubes[i].pos.z -= difficulty;
+        cubes[i].pos.z -= difficulty + speed;
         cubes[i].pos.x += vel * (1 + difficulty / 2); // todo: shift and fixed point
         if (cubes[i].pos.z < -10) {
             if (cubes[i].pos.z < -20 - CUBE_SIZE) { // moved behind player
                 cubes[i].pos.z = DIST;
                 cubes[i].pos.x = Random32() % SPREAD - SPREAD / 2;
-                if ((score + difficulty) >> 8 > score >> 8) {
-                    // next level
+                if ((score + difficulty) >> 8 > score >> 8) { // next level
+                    ++speed;
                     Effect_Play(beep, sizeof(beep));
                     shuffleColor();
                 }
-                score += difficulty;
+                printScore(score += difficulty);
             }
             // collision detection
             else if (cubes[i].pos.x < 0 && cubes[i].pos.x + cubes[i].size > 0) {
                 cubes[i].draw();
                 //todo: display endgame graphic
                 Effect_Play(death, sizeof(death));
-                //Sound_Stop();
-                ST7735_FillScreen(0);
-                ST7735_OutUDec(score);
+                printScore(score);
                 while (true) ;
             }
         }
