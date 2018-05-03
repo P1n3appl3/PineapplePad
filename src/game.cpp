@@ -59,7 +59,10 @@ void step(){
             else if (cubes[i].pos.x < 0 && cubes[i].pos.x + cubes[i].size > 0) {
                 cubes[i].draw();
                 //todo: display endgame graphic
-                Effect_Play(dead, sizeof(dead));
+                Effect_Play(death, sizeof(death));
+                //Sound_Stop();
+                ST7735_FillScreen(0);
+                ST7735_OutUDec(score);
                 while (true) ;
             }
         }

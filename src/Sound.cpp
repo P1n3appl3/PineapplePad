@@ -27,7 +27,7 @@ uint8_t* currentBuf;
 
 uint8_t buf[BUFFER];
 uint32_t tail;
-char songFile[] = "sng0.wav";
+char songFile[] = "menu.wav";
 
 uint32_t pausedSample;
 uint32_t pausedTail;
@@ -80,6 +80,7 @@ void SysTick_Handler(void){
     }
     DAC_Out(currentBuf[sample++] >> 2);
     if (sample == limit) {
+        Sound_Stop();
         if(paused){
             Sound_Unpause();
         }
@@ -119,7 +120,7 @@ void error(char *err){
 }
 
 void open_song(){
-    songFile[3] = '0' + Random()%SONGS;
+    //songFile[3] = '0' + Random()%SONGS;
     sample = 0;
     tail = 0;
     Fresult = f_open(&Handle, songFile, FA_READ);

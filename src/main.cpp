@@ -36,20 +36,24 @@ int main(void){
     PortF_Init();
     Sound_Init();
 
-    // SD_Mount();
-    // Sound_Play();
-
+    SD_Mount();
     EnableInterrupts();
+    Sound_Play();
 
     ST7735_DrawBitmap(0, 159, retro, 128, 160);
-    while((!(GPIO_PORTF_DATA_R & 0x10)) - (!(GPIO_PORTF_DATA_R & 0x01)) == 0);
+    while((!(GPIO_PORTF_DATA_R & 0x10)) - (!(GPIO_PORTF_DATA_R & 0x01)) == 0){
+        Sound_Load();
+    }
+    Sound_Stop();
+    Effect_Play(start, sizeof(start));
+    //Sound_Stop();
     ST7735_FillScreen(0);
     Timer1_Init(clk, 3333333); // 24 FPS
     Random_Init(NVIC_ST_CURRENT_R);
 
     while (1) {
         frameDone = false;
-        difficulty = 2 + (ADC_In() >> 9); // slide pot input
+        difficulty = 5 + (ADC_In() >> 9); // slide pot input
         vel = (!(GPIO_PORTF_DATA_R & 0x10)) // todo: replace with hardware interrupts
               - (!(GPIO_PORTF_DATA_R & 0x01));
         step();
@@ -59,15 +63,15 @@ int main(void){
     }
 }
 
-int mainSFX(){
+int main_SFX(){
     PLL_Init(Bus80MHz);
     PortF_Init();
     Sound_Init();
-    Effect_Play(dead, sizeof(dead));
+    Effect_Play(death, sizeof(death));
     while (1) ;
 }
 
-int main3(){
+int main_Audio(){
     PLL_Init(Bus80MHz);
     ST7735_InitR(INITR_REDTAB);
     Sound_Init();
@@ -85,7 +89,7 @@ int main3(){
     }
 }
 
-int mainSD(void){
+int main_sdtest(void){
     PLL_Init(Bus80MHz);
     ST7735_InitR(INITR_REDTAB);
     EnableInterrupts();
