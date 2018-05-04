@@ -4,7 +4,7 @@
 #include "../inc/tm4c123gh6pm.h"
 #include "../inc/IO.h"
 
-const uint8_t* instruments[] = { horn, guitar, basoon, sine, flute };
+const uint8_t* instruments[] = { horn, guitar, basoon, sine, basoon };
 
 const uint8_t* instrument;
 
