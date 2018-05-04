@@ -18,8 +18,8 @@ void Cube::draw() {
     Vec2 p000 = pos.project();
     Vec2 p001 = Vec3(pos.x, pos.y, pos.z + size).project();
     Vec2 p010 = Vec3(pos.x, pos.y + size, pos.z).project();
-    Vec2 p011 = Vec3(pos.x, pos.y + size, pos.z + size).project();
     Vec2 p100 = Vec3(pos.x + size, pos.y, pos.z).project();
+    Vec2 p011 = Vec3(pos.x, pos.y + size, pos.z + size).project();
     Vec2 p101 = Vec3(pos.x + size, pos.y, pos.z + size).project();
     Vec2 p110 = Vec3(pos.x + size, pos.y + size, pos.z).project();
     Vec2 p111 = Vec3(pos.x + size, pos.y + size, pos.z + size).project();
@@ -109,8 +109,8 @@ void drawLine(Vec2 a, Vec2 b, int color) {
     }
 }
 
-static char lastScore[5] = { 10, 10, 10, 10, 10};
-const uint16_t* numbers[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
+static char lastScore[5] = { 10, 10, 10, 10, 10 };
+const uint16_t* numbers[10] = { zero, one, two, three, four, five, six, seven, eight, nine };
 void printScore(int x){
     int screenX = 2 * SCREEN_HEIGHT / 3;
     int screenY = SCREEN_WIDTH;

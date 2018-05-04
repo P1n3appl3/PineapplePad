@@ -40,7 +40,7 @@ void UART_OutChar(char data);
 // Output String (NULL termination)
 // Input: pointer to a NULL-terminated string to be transferred
 // Output: none
-void UART_OutString(char *pt);
+void UART_OutString(char* pt);
 
 //-----------------------UART_OutUDec-----------------------
 // Output a 32-bit number in unsigned decimal format
@@ -55,5 +55,5 @@ void UART_OutUDec(uint32_t n);
 //    or until max length of the string is reached.
 // Input: pointer to empty buffer of 8 characters
 // Output: Null terminated string
-void UART_InMessage(char *bufPt);
+void UART_InMessage(char* bufPt);
 #endif

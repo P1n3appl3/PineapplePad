@@ -3,8 +3,7 @@
 #include "../inc/tm4c123gh6pm.h"
 #include "../inc/ST7735.h"
 #include "../inc/graphics.h"
-#include "../inc/sound.h"
-#include "../inc/sfx.h"
+#include "../inc/song.h"
 
 #define CUBE_SIZE 20
 #define SPREAD 500
@@ -18,9 +17,9 @@ int score = 0;
 
 Cube cubes[NUM_CUBES];
 
-int bgColor = BLACK;
-int cubeColor = GREEN;
-int playerColor = WHITE;
+int bgColor;
+int cubeColor;
+int playerColor;
 bool redraw = false;
 int widthOffset = 0;
 int depthOffset = 0;
@@ -30,7 +29,7 @@ void initField(){
         cubes[i] = Cube(Vec3(Random32() % SPREAD - SPREAD / 2,
                              -50, GRACE_PERIOD + (DIST / NUM_CUBES) * i), CUBE_SIZE);
     }
-    shuffleColor();
+    shuffleColor(Random() % 8);
 }
 
 void step(){
@@ -51,7 +50,6 @@ void step(){
                 cubes[i].pos.x = Random32() % SPREAD - SPREAD / 2;
                 if ((score + difficulty) >> 9 > score >> 9) { // next level
                     ++speed;
-                    Effect_Play(beep, sizeof(beep));
                     shuffleColor();
                 }
                 printScore(score += difficulty);
@@ -60,9 +58,9 @@ void step(){
             else if (cubes[i].pos.x < 0 && cubes[i].pos.x + cubes[i].size > 0) {
                 cubes[i].draw();
                 //todo: display endgame graphic
-                Effect_Play(death, sizeof(death));
+                Song_Play(meme_pitch, meme_dur, meme_speed, sizeof(meme_dur));
                 printScore(score);
-                while(true);
+                while (true) ;
             }
         }
         cubes[i].draw();
@@ -75,14 +73,14 @@ void step(){
 
 // size being power of 2 allows optimizing mod to bitwise and
 static const int palettes[][2] = {
-    { BLACK, WHITE },
-    { WHITE, BLACK },
-    { BLACK, GREEN },
-    { WHITE, RED },
-    { WHITE, BLUE },
-    { BLACK, 1337 },
-    { WHITE, 1337 },
-    { GREEN, BLACK }
+    { ST7735_BLACK, 1337 },
+    { ST7735_BLACK, ST7735_GREEN },
+    { ST7735_GREEN, ST7735_BLACK },
+    { ST7735_WHITE, ST7735_BLACK },
+    { ST7735_RED, ST7735_BLACK },
+    { ST7735_BLACK, ST7735_RED },
+    { ST7735_BLACK, 1337 },
+    { ST7735_WHITE, ST7735_BLUE },
 }; // todo: fix backwards colors
 
 void shuffleColor(int x){
@@ -91,7 +89,7 @@ void shuffleColor(int x){
     bgColor = palettes[palette][0];
     cubeColor = palettes[palette][1];
     for (int i = 0; i < NUM_CUBES; ++i) {
-        if (cubeColor == 1337) {    // rainbow
+        if (cubeColor == 1337) { // rainbow
             cubes[i].color = randomColor();
         } else {
             cubes[i].color = cubeColor;

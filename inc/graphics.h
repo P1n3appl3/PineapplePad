@@ -1,5 +1,6 @@
 #ifndef _GRAPHICS_H
 #define _GRAPHICS_H
+#include "ST7735.h"
 
 #define SCREEN_WIDTH    160
 #define SCREEN_HEIGHT   128
@@ -9,13 +10,6 @@
 #define VIEW_X_MULT     5773
 #define VIEW_X_DIV      10000
 #define SELF_OCCLUDE    true
-
-#define WHITE   0xFFFF
-#define GREY    0x1862
-#define BLACK   0x0000
-#define RED     0xF800
-#define BLUE    0x07E0
-#define GREEN   0x001F
 
 struct Vec2 {
     int x, y;
@@ -47,14 +41,14 @@ struct Cube {
         size = 0;
     }
 
-    Cube(Vec3 pos, int size, int color = WHITE) :
+    Cube(Vec3 pos, int size, int color = ST7735_WHITE) :
         pos(pos), size(size), color(color) {
     }
 
     void draw();
 };
 
-void drawLine(Vec2 a, Vec2 b, int color = WHITE);
+void drawLine(Vec2 a, Vec2 b, int color = ST7735_WHITE);
 
 void drawPlayer();
 
