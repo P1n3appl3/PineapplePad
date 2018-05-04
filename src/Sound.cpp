@@ -30,10 +30,12 @@ void Sound_Init(void){
     Timer0A_Init();
 }
 
+extern "C" void TIMER0A_Handler(void);
+
 void TIMER0A_Handler(void){
     TIMER0_ICR_R = TIMER_ICR_TATOCINT;
     static char i = 0;
-	toggle_blue();
+	//toggle_blue();
     DAC_Out(horn[i++]);
     i &= 0x3F;
 }

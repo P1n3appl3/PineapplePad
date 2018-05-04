@@ -33,23 +33,22 @@ int main(void){
     UART_Init();    // debugging
     ADC_Init();
     PortF_Init();
-		DAC_Init();
+	DAC_Init();
     Sound_Init();
-		Song_Init();
+	Song_Init();
 
-    //SD_Mount(); // breaking at the moment
     EnableInterrupts();
 
-    //Song_Play();
     ST7735_DrawBitmap(0, 159, retro, 128, 160);
     while ((GPIO_PORTF_DATA_R & 0x10) && (GPIO_PORTF_DATA_R & 0x01)) ;
     //Sound_Stop();
     //Effect_Play(start, sizeof(start));
+    Song_Play();
 
     ST7735_FillScreen(0);
     printScore(0);
     initField();    // set up cubes
-    Timer1_Init(clk, 2666666); // 30 FPS
+    Timer1_Init(clk, 1333333); // 60 FPS
     //Random_Init(NVIC_ST_CURRENT_R);
 
     while (1) {
@@ -70,15 +69,15 @@ int mainSFX(){
     while (1) ;
 }
 
-int main2(){
-		DisableInterrupts();
+int main1(){
+    DisableInterrupts();
     PLL_Init(Bus80MHz);
-		DAC_Init();
+	DAC_Init();
     Sound_Init();
-		//Song_Init();
+	Song_Init();
     PortF_Init();
     EnableInterrupts();
-    Sound_Play(4050);
+    Song_Play();
     while (1) {
 			
     }

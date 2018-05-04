@@ -36,6 +36,8 @@ void Song_Stop(void){
     Sound_Play(0);
 }
 
+extern "C" void SysTick_Handler(void);
+
 void SysTick_Handler(void){
     if (--counter) {
         return;
