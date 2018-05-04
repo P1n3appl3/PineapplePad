@@ -4,8 +4,8 @@
 #include "../inc/ST7735.h"
 #include "../inc/random.h"
 #include "../inc/ADC.h"
+#include "../inc/DAC.h"
 #include "../inc/UART.h"
-#include "../inc/Timer0.h"
 #include "../inc/Timer1.h"
 #include "../inc/sound.h"
 #include "../inc/sfx.h"
@@ -13,6 +13,7 @@
 #include "../inc/game.h"
 #include "../inc/IO.h"
 #include "../inc/Images.h"
+#include "../inc/song.h"
 
 extern "C" void DisableInterrupts(void);
 extern "C" void EnableInterrupts(void);
@@ -32,24 +33,23 @@ int main(void){
     UART_Init();    // debugging
     ADC_Init();
     PortF_Init();
+	DAC_Init();
     Sound_Init();
+	Song_Init();
 
-    //SD_Mount(); // breaking at the moment
     EnableInterrupts();
 
-    Sound_Play();
     ST7735_DrawBitmap(0, 159, retro, 128, 160);
-    while ((GPIO_PORTF_DATA_R & 0x10) && (GPIO_PORTF_DATA_R & 0x01)) {
-        Sound_Load();
-    }
-    Sound_Stop();
-    Effect_Play(start, sizeof(start));
+    while ((GPIO_PORTF_DATA_R & 0x10) && (GPIO_PORTF_DATA_R & 0x01)) ;
     //Sound_Stop();
+    //Effect_Play(start, sizeof(start));
+    Song_Play();
+
     ST7735_FillScreen(0);
     printScore(0);
     initField();    // set up cubes
-    Timer1_Init(clk, 2666666); // 30 FPS
-    Random_Init(NVIC_ST_CURRENT_R);
+    Timer1_Init(clk, 1333333); // 60 FPS
+    //Random_Init(NVIC_ST_CURRENT_R);
 
     while (1) {
         frameDone = false;
@@ -57,9 +57,7 @@ int main(void){
         vel = (!(GPIO_PORTF_DATA_R & 0x10)) // todo: replace with hardware interrupts
               - (!(GPIO_PORTF_DATA_R & 0x01));
         step();
-        do {
-            //Sound_Load();
-        } while (!frameDone);
+				while (!frameDone);
     }
 }
 
@@ -71,16 +69,16 @@ int mainSFX(){
     while (1) ;
 }
 
-int mainMusic(){
+int main1(){
+    DisableInterrupts();
     PLL_Init(Bus80MHz);
-    ST7735_InitR(INITR_REDTAB);
+	DAC_Init();
     Sound_Init();
-    UART_Init();
+	Song_Init();
     PortF_Init();
     EnableInterrupts();
-    SD_Mount();
-    Sound_Play();
+    Song_Play();
     while (1) {
-        Sound_Load();
+			
     }
 }

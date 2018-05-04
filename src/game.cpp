@@ -6,7 +6,7 @@
 #include "../inc/sound.h"
 #include "../inc/sfx.h"
 
-#define CUBE_SIZE 15
+#define CUBE_SIZE 20
 #define SPREAD 500
 #define DIST 300
 #define GRACE_PERIOD 500
@@ -44,12 +44,12 @@ void step(){
         cubes[i].draw();
         cubes[i].color = tempColor;
         cubes[i].pos.z -= difficulty + speed;
-        cubes[i].pos.x += vel * (1 + difficulty / 2); // todo: shift and fixed point
+        cubes[i].pos.x += vel * (1 + speed / 2 + difficulty / 2); // todo: shift and fixed point
         if (cubes[i].pos.z < -10) {
             if (cubes[i].pos.z < -20 - CUBE_SIZE) { // moved behind player
                 cubes[i].pos.z = DIST;
                 cubes[i].pos.x = Random32() % SPREAD - SPREAD / 2;
-                if ((score + difficulty) >> 8 > score >> 8) { // next level
+                if ((score + difficulty) >> 9 > score >> 9) { // next level
                     ++speed;
                     Effect_Play(beep, sizeof(beep));
                     shuffleColor();
@@ -62,7 +62,7 @@ void step(){
                 //todo: display endgame graphic
                 Effect_Play(death, sizeof(death));
                 printScore(score);
-                while (true) ;
+                while(true);
             }
         }
         cubes[i].draw();
