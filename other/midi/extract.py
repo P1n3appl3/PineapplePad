@@ -42,7 +42,7 @@ divisors.append('0')
 durations.append('1')
 velocities.append('0')
 
-print(divisors)
+# print(divisors)
 f.write(','.join(divisors))
 f.write('};\n\nconst uint16_t dur[] = {')
 f.write(','.join(durations))
