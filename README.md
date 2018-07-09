@@ -1,8 +1,8 @@
 # PineapplePad
 > Could have been better...
 
-![menu](menu.jpg)
-![death](death.jpg)
+![menu](https://photos.app.goo.gl/qK8PZpjbENy8hcSy6)
+![death](https://photos.app.goo.gl/eTu5CZ2k6BfHNGmo9)
 
 ## Pinout
 
