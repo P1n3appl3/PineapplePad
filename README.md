@@ -1,28 +1,31 @@
 # PineapplePad
 > Could have been better...
 
+![menu](menu.jpg)
+![death](death.jpg)
+
 ## Pinout
 
 - Port A
-	- A0: UART Rx
-	- A1: UART Tx
-	- A2: Sclk
-	- A3: TFT_CS
-	- A4: MISO
-	- A5: MOSI
-	- A6: TFT data
-	- A7: TFT reset
+    - A0: UART Rx
+    - A1: UART Tx
+    - A2: Sclk
+    - A3: TFT_CS
+    - A4: MISO
+    - A5: MOSI
+    - A6: TFT data
+    - A7: TFT reset
 - Port D
-	- D2: Slide Pot
-	- D7: SDC_CS
+    - D2: Slide Pot
+    - D7: SDC_CS
 - Port E
-	- E5: Audio Out
+    - E5: Audio Out
 - Port F
-	- F0: Onboard Button 2
-	- F1: RED_LED
-	- F2: BLUE_LED
-	- F3: GREEN_LED
-	- F4: Onboard Button 1
+    - F0: Onboard Button 2
+    - F1: RED_LED
+    - F2: BLUE_LED
+    - F3: GREEN_LED
+    - F4: Onboard Button 1
 
 ## Software todo
 
@@ -42,8 +45,8 @@
 - Sound
     - [x] Filesystem reading
     - [x] Audio file streaming
-	- [x] Midi conversion and playing
-	- [x] Multiple instruments
+    - [x] Midi conversion and playing
+    - [x] Multiple instruments
 
 ## Hardware todo
 
