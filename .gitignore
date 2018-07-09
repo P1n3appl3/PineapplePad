@@ -10,3 +10,4 @@ other/*.wav
 !**.cpp
 !**.h
 !**.s
+!**.jpg
